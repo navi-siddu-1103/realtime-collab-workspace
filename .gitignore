@@ -49,3 +49,6 @@ next-env.d.ts
 .claude
 .cursor
 .devin
+
+scripts/sample.txt
+scripts/last-run.json
