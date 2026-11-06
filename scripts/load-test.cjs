@@ -1,3 +1,4 @@
+process.setMaxListeners(100);
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
