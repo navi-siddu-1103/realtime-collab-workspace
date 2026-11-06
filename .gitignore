@@ -44,3 +44,8 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+.agents
+.claude
+.cursor
+.devin
