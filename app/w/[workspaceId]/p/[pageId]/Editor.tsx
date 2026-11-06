@@ -10,11 +10,10 @@ import VersionHistory from "./VersionHistory";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:1234";
 
-const COLORS = ["#f87171", "#fb923c", "#facc15", "#4ade80", "#22d3ee", "#60a5fa", "#a78bfa", "#f472b6"];
 function colorFor(id: string) {
   let h = 0;
   for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return COLORS[h % COLORS.length];
+  return `hsl(${h % 360} 75% 65%)`;
 }
 
 type Me = { id: string; name: string; color: string };
@@ -86,7 +85,9 @@ export default function Editor({ pageId }: { pageId: string }) {
       const { token, role, user } = await res.json();
       if (cancelled) return;
       doc = new Y.Doc();
-      provider = new WebsocketProvider(WS_URL, pageId, doc, { params: { token } });
+      const port = new URLSearchParams(window.location.search).get("ws");
+      const url = port ? `ws://localhost:${port}` : WS_URL;
+      provider = new WebsocketProvider(url, pageId, doc, { params: { token } });
       setSession({
         doc,
         provider,

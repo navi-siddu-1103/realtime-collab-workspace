@@ -2,7 +2,8 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { inviteMember, changeRole, removeMember } from "./actions";
+import { changeRole, removeMember } from "./actions";
+import InviteForm from "./InviteForm";
 
 export default async function WorkspacePage({
   params,
@@ -96,16 +97,7 @@ export default async function WorkspacePage({
               </li>
             ))}
           </ul>
-          <form action={inviteMember.bind(null, workspaceId)} className="flex gap-2">
-            <input name="email" type="email" required placeholder="Invite by email" className="flex-1 rounded border p-2" />
-            <select name="role" className="rounded border bg-black p-2">
-              <option value="EDITOR">EDITOR</option>
-              <option value="COMMENTER">COMMENTER</option>
-              <option value="VIEWER">VIEWER</option>
-            </select>
-            <button className="rounded bg-white px-3 text-black">Invite</button>
-          </form>
-          <p className="text-sm text-gray-500">The person must have signed up first.</p>
+          <InviteForm workspaceId={workspaceId} />
         </section>
       )}
     </main>

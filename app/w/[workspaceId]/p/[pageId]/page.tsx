@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Editor from "./Editor";
 import CommentsPanel from "./CommentsPanel";
+import PageTitle from "./PageTitle";
 
 export default async function PageView({
   params,
@@ -31,7 +32,7 @@ export default async function PageView({
   return (
     <main className="mx-auto w-full max-w-6xl space-y-4 p-6">
       <Link href={`/w/${workspaceId}`} className="text-sm underline">← {`Back`}</Link>
-      <h1 className="text-2xl font-bold">{page.title}</h1>
+      <PageTitle pageId={page.id} initial={page.title} canEdit={canEdit} />
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <Editor pageId={page.id} />
         <CommentsPanel

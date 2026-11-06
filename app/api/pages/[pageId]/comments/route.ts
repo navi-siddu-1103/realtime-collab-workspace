@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getPageAccess } from "@/lib/page-access";
 
+
 type Ctx = { params: Promise<{ pageId: string }> };
 
 export async function GET(_: Request, { params }: Ctx) {

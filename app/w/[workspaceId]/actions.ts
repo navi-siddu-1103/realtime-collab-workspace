@@ -15,22 +15,27 @@ async function requireOwner(workspaceId: string) {
   if (!me || me.role !== "OWNER") throw new Error("Forbidden");
 }
 
-export async function inviteMember(workspaceId: string, formData: FormData) {
+export async function inviteMember(
+  workspaceId: string,
+  _prev: { error?: string; ok?: string } | null,
+  formData: FormData
+): Promise<{ error?: string; ok?: string } | null> {
   await requireOwner(workspaceId);
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const role = String(formData.get("role")) as Role;
-  if (!ASSIGNABLE.includes(role)) return;
+  if (!ASSIGNABLE.includes(role)) return { error: "Choose a valid role." };
 
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) return; // must have signed up first
+  if (!user) return { error: "No account with that email. Ask them to sign up first." };
 
   const existing = await prisma.member.findUnique({
     where: { userId_workspaceId: { userId: user.id, workspaceId } },
   });
-  if (!existing) {
-    await prisma.member.create({ data: { userId: user.id, workspaceId, role } });
-  }
+  if (existing) return { error: `${user.name} is already a member.` };
+
+  await prisma.member.create({ data: { userId: user.id, workspaceId, role } });
   revalidatePath(`/w/${workspaceId}`);
+  return { ok: `${user.name} added as ${role}.` };
 }
 
 export async function changeRole(workspaceId: string, memberId: string, formData: FormData) {
