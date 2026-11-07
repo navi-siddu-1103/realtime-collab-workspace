@@ -117,7 +117,13 @@ export default async function WorkspacePage({
                   ) : (
                     <div className="flex items-center gap-2">
                       <form action={changeRole.bind(null, workspaceId, m.id)} className="flex gap-2">
-                        <select name="role" defaultValue={m.role} aria-label="Role" className="field w-auto">
+                        <select
+                          key={m.role}
+                          name="role"
+                          defaultValue={m.role}
+                          aria-label="Role"
+                          className="field w-auto"
+                        >
                           <option value="EDITOR">Editor</option>
                           <option value="COMMENTER">Commenter</option>
                           <option value="VIEWER">Viewer</option>
