@@ -3,13 +3,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import AuthShell from "@/components/AuthShell";
 
 export default function SignupPage() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
+    setPending(true);
     const f = new FormData(e.currentTarget);
     const body = {
       name: String(f.get("name")),
@@ -22,7 +26,8 @@ export default function SignupPage() {
       body: JSON.stringify(body),
     });
     if (!res.ok) {
-      setError((await res.json()).error ?? "Signup failed");
+      setError((await res.json()).error ?? "Could not create the account.");
+      setPending(false);
       return;
     }
     await signIn("credentials", { email: body.email, password: body.password, redirect: false });
@@ -30,16 +35,40 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="mx-auto mt-24 max-w-sm space-y-4 p-6">
-      <h1 className="text-2xl font-bold">Create account</h1>
-      <form onSubmit={onSubmit} className="space-y-3">
-        <input name="name" placeholder="Name" required className="w-full rounded border p-2" />
-        <input name="email" type="email" placeholder="Email" required className="w-full rounded border p-2" />
-        <input name="password" type="password" placeholder="Password (min 8)" required minLength={8} className="w-full rounded border p-2" />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button className="w-full rounded bg-black p-2 text-white">Sign up</button>
+    <AuthShell
+      title="Create your account"
+      footer={
+        <>
+          Already have one?{" "}
+          <Link href="/login" className="text-ink underline underline-offset-4">
+            Log in
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={onSubmit} className="space-y-4">
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium">Name</span>
+          <input name="name" required autoComplete="name" className="field" />
+        </label>
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium">Email</span>
+          <input name="email" type="email" required autoComplete="email" className="field" />
+        </label>
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium">Password</span>
+          <input name="password" type="password" required minLength={8} autoComplete="new-password" className="field" />
+          <span className="block text-xs text-muted">At least 8 characters.</span>
+        </label>
+        {error && (
+          <p role="alert" className="text-sm text-danger">
+            {error}
+          </p>
+        )}
+        <button disabled={pending} className="btn btn-primary w-full">
+          {pending ? "Creating account…" : "Create account"}
+        </button>
       </form>
-      <p className="text-sm">Have an account? <Link href="/login" className="underline">Log in</Link></p>
-    </main>
+    </AuthShell>
   );
 }

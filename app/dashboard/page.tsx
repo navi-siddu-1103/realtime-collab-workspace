@@ -1,7 +1,11 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import Link from "next/dist/client/link";
+import AppHeader from "@/components/AppHeader";
+
+const label = (r: string) => r.charAt(0) + r.slice(1).toLowerCase();
+const count = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 export default async function Dashboard() {
   const session = await auth();
@@ -9,25 +13,36 @@ export default async function Dashboard() {
 
   const memberships = await prisma.member.findMany({
     where: { userId: session.user.id },
-    include: { workspace: true },
+    orderBy: { workspace: { createdAt: "asc" } },
+    include: {
+      workspace: { include: { _count: { select: { pages: true, members: true } } } },
+    },
   });
 
   return (
-    <main className="mx-auto max-w-2xl space-y-4 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Hi, {session.user.name}</h1>
-        <form action={async () => { "use server"; await signOut({ redirectTo: "/login" }); }}>
-          <button className="rounded border px-3 py-1">Sign out</button>
-        </form>
-      </div>
-      <ul className="space-y-2">
-        {memberships.map((m) => (
-          <li key={m.id} className="rounded border p-3">
-            <Link href={`/w/${m.workspaceId}`} className="underline">{m.workspace.name}</Link>{" "}
-            <span className="text-sm text-gray-500">({m.role})</span>
-          </li>
-        ))}
-      </ul>
-    </main>
+    <>
+      <AppHeader user={{ id: session.user.id, name: session.user.name ?? "Account" }} />
+      <main className="mx-auto w-full max-w-5xl px-6 py-12">
+        <h1 className="font-serif text-4xl">Your workspaces</h1>
+        <ul className="mt-8 divide-y divide-line border-y border-line">
+          {memberships.map((m) => (
+            <li key={m.id}>
+              <Link
+                href={`/w/${m.workspaceId}`}
+                className="-mx-2 flex items-center justify-between gap-4 rounded-lg px-2 py-5 transition-colors hover:bg-ink/[0.04]"
+              >
+                <span>
+                  <span className="block text-lg font-medium">{m.workspace.name}</span>
+                  <span className="block text-sm text-muted">
+                    {count(m.workspace._count.pages, "page")}, {count(m.workspace._count.members, "member")}
+                  </span>
+                </span>
+                <span className="text-sm text-muted">{label(m.role)}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </main>
+    </>
   );
 }

@@ -12,20 +12,30 @@ export default function InviteForm({ workspaceId }: { workspaceId: string }) {
 
   return (
     <div className="space-y-2">
-      <form action={action} className="flex gap-2">
-        <input name="email" type="email" required placeholder="Invite by email" className="flex-1 rounded border p-2" />
-        <select name="role" className="rounded border bg-black p-2">
-          <option value="EDITOR">EDITOR</option>
-          <option value="COMMENTER">COMMENTER</option>
-          <option value="VIEWER">VIEWER</option>
+      <form action={action} className="flex flex-wrap gap-2">
+        <input
+          name="email"
+          type="email"
+          required
+          placeholder="Email of someone who has an account"
+          aria-label="Email"
+          className="field min-w-0 flex-1"
+        />
+        <select name="role" aria-label="Role" className="field w-auto">
+          <option value="EDITOR">Editor</option>
+          <option value="COMMENTER">Commenter</option>
+          <option value="VIEWER">Viewer</option>
         </select>
-        <button disabled={pending} className="rounded bg-white px-3 text-black disabled:opacity-50">
-          {pending ? "Inviting…" : "Invite"}
+        <button disabled={pending} className="btn btn-primary">
+          {pending ? "Adding…" : "Add member"}
         </button>
       </form>
-      {state?.error && <p className="text-sm text-red-500">{state.error}</p>}
-      {state?.ok && <p className="text-sm text-green-500">{state.ok}</p>}
-      <p className="text-sm text-gray-500">The person must have signed up first.</p>
+      {state?.error && (
+        <p role="alert" className="text-sm text-danger">
+          {state.error}
+        </p>
+      )}
+      {state?.ok && <p className="text-sm text-ok">{state.ok}</p>}
     </div>
   );
 }

@@ -20,7 +20,7 @@ export default function PageTitle({
       body: JSON.stringify({ title: next }),
     });
     if (!res.ok) {
-      setError((await res.json()).error ?? "Could not rename");
+      setError((await res.json()).error ?? "Could not rename the page.");
       setTitle(saved);
       return;
     }
@@ -30,7 +30,7 @@ export default function PageTitle({
     router.refresh();
   }
 
-  if (!canEdit) return <h1 className="text-2xl font-bold">{initial}</h1>;
+  if (!canEdit) return <h1 className="font-serif text-4xl">{initial}</h1>;
 
   return (
     <div>
@@ -41,9 +41,9 @@ export default function PageTitle({
         onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
         maxLength={120}
         aria-label="Page title"
-        className="-mx-1 w-full rounded bg-transparent px-1 text-2xl font-bold outline-none hover:bg-white/5 focus:bg-white/10"
+        className="-mx-2 w-full rounded-lg bg-transparent px-2 font-serif text-4xl outline-none hover:bg-ink/[0.04] focus:bg-ink/[0.06]"
       />
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p role="alert" className="mt-1 text-sm text-danger">{error}</p>}
     </div>
   );
 }
